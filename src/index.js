@@ -1,40 +1,19 @@
+// ------- DEPENDENCIES --------
+import * as d3 from 'd3';
+import Newick from 'newick';
+import dataLoader from './data';
 import './styles/index.css';
-import * as d3 from "d3";
-const Newick = require('newick');
 
+// ------- DATA LOADER --------
+const data = dataLoader()
+  .on('error', err => {
+    console.log(err);
+  })
+  .on('loaded', rows => {
+    console.log('ready!!');
+  });
 
-
-d3.queue()
-    .defer(d3.csv,'../data/metadata_mumps_csv_clean.csv',parse)
-    .await(function(err, rows){
-        if (err) throw err;
-        console.log(rows)
-    });
-
-
-function parse(d){
-    return {
-        identifier: d.identifier,
-        meta_id: d.pubmed_id,
-        fasta_id: d.fasta_id,
-        newick_id: d.newick_id,
-        disease: d.disease,
-        collection_date: parseDate(d.collection_date),
-        onset: parseDate(d.onset_date),
-        sample_location: d.collection_loc,
-        genotype: d.genotype,
-        age: +d.age,
-        gender: d.gender,
-        vaccine: d.vaccine_status,
-        symptoms: d.symptoms.split(', ')
-    }
-}
-
-function parseDate(d){
-    var splitted = d.split('-');
-    return new Date (+splitted[0], +splitted[1]-1, +splitted[2]);
-}
-
+data();
 
 var outerRadius = 800 / 2,
 innerRadius = outerRadius - 170;
