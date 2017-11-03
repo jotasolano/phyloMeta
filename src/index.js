@@ -1,58 +1,55 @@
 import './styles/index.css';
-// import * as PhyloCanvas from 'phylocanvas';
 import * as d3 from "d3";
 const Newick = require('newick');
-// import tree from '../dist/data/Untitled.nwk';
-
-
-// let phylocanvas = new PhyloCanvas.Tree('phyloDiv'); // initialize your tree viewer
-// var newick_str = "((B:0.2,(C:0.3,D:0.4)E:0.5)F:0.1)A;";
-// let test = "(Bovine:0.69395,(Gibbon:0.36079,(Orang:0.33636,(Gorilla:0.17147,(Chimp:0.19268, Human:0.11927):0.08386):0.06124):0.15057):0.54939, Mouse:1.21460);"
-// let newStr = "((NC_001608.3:0.0226401, DQ447653.1:0.0357606):0.110296, (NC_004161.1:0.179082, (NC_006432.1:0.181495, ((NC_002549.1:0.00563501, AY354458.1:0.0058138):0.154872, (FJ217161.1:0.130509, FJ217162.1:0.140256):0.0161949):0.0151011):0.00491556):0.110296);";
-
-// var client = new XMLHttpRequest();
-// client.open('GET', '../data/mumps.nwk');
-// client.onreadystatechange = function() {
-
-// phylocanvas.load(client.responseText);
-// phylocanvas.setTreeType('rectangular');
-// }
-// client.send(null);
-
-// phylocanvas.on('typechanged', function(){console.log('fired')});
 
 
 
 d3.queue()
     .defer(d3.csv,'../data/metadata_mumps_csv_clean.csv',parse)
     .await(function(err, rows){
+        if (err) throw err;
         console.log(rows)
     });
 
 
-
 function parse(d){
     return {
-        id: d.id,
-        symptoms: d.symptoms.split()
+        identifier: d.identifier,
+        meta_id: d.pubmed_id,
+        fasta_id: d.fasta_id,
+        newick_id: d.newick_id,
+        disease: d.disease,
+        collection_date: parseDate(d.collection_date),
+        onset: parseDate(d.onset_date),
+        sample_location: d.collection_loc,
+        genotype: d.genotype,
+        age: +d.age,
+        gender: d.gender,
+        vaccine: d.vaccine_status,
+        symptoms: d.symptoms.split(', ')
     }
 }
 
+function parseDate(d){
+    var splitted = d.split('-');
+    return new Date (+splitted[0], +splitted[1]-1, +splitted[2]);
+}
 
-// var outerRadius = 600 / 2,
-// innerRadius = outerRadius - 170;
 
-// var color = d3.scaleOrdinal()
-// .domain(["Bacteria", "Eukaryota", "Archaea"])
-// .range(d3.schemeCategory10);
+var outerRadius = 800 / 2,
+innerRadius = outerRadius - 170;
 
-// var cluster = d3.cluster()
-// .size([360, innerRadius]);
-// // .separation(function(a, b) { return 1; });
+var color = d3.scaleOrdinal()
+.domain(["Bacteria", "Eukaryota", "Archaea"])
+.range(d3.schemeCategory10);
 
-// var svg = d3.select("body").append("svg")
-// .attr("width", outerRadius * 2)
-// .attr("height", outerRadius * 2);
+var cluster = d3.cluster()
+.size([360, innerRadius]);
+// .separation(function(a, b) { return 1; });
+
+var svg = d3.select("body").append("svg")
+.attr("width", outerRadius * 2)
+.attr("height", outerRadius * 2);
 
 // var legend = svg.append("g")
 // .attr("class", "legend")
@@ -74,123 +71,123 @@ function parse(d){
 // .attr("text-anchor", "end")
 // .text(function(d) { return d; });
 
-// var chart = svg.append("g")
-// .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
+var chart = svg.append("g")
+.attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
 
 
 
-// d3.text("../data/mumps.nwk", function(error, life) {
-// if (error) throw error;
+d3.text("../data/mumps.nwk", function(error, life) {
+if (error) throw error;
 
-// var root = d3.hierarchy(parseNewick(life), function(d) { return d.branchset; })
-//   .sum(function(d) { return d.branchset ? 0 : 1; })
-//   .sort(function(a, b) { return (a.value - b.value) || d3.ascending(a.data.length, b.data.length); });
+var root = d3.hierarchy(parseNewick(life), function(d) { return d.branchset; })
+  .sum(function(d) { return d.branchset ? 0 : 1; })
+  .sort(function(a, b) { return (a.value - b.value) || d3.ascending(a.data.length, b.data.length); });
 
-// cluster(root);
+cluster(root);
 
-// var input = d3.select("#show-length input").on("change", changed),
-//   timeout = setTimeout(function() { input.property("checked", true).each(changed); }, 2000);
+var input = d3.select("#show-length input").on("change", changed),
+  timeout = setTimeout(function() { input.property("checked", true).each(changed); }, 2000);
 
-// setRadius(root, root.data.length = 0, innerRadius / maxLength(root));
-// setColor(root);
+setRadius(root, root.data.length = 0, innerRadius / maxLength(root));
+setColor(root);
 
-// var linkExtension = chart.append("g")
-//   .attr("class", "link-extensions")
-// .selectAll("path")
-// .data(root.links().filter(function(d) {return !d.target.children;}))
-// .enter().append("path")
-//   .each(function(d) { d.target.linkExtensionNode = this; })
-//   .attr("d", linkExtensionConstant);
+var linkExtension = chart.append("g")
+  .attr("class", "link-extensions")
+.selectAll("path")
+.data(root.links().filter(function(d) {return !d.target.children;}))
+.enter().append("path")
+  .each(function(d) { d.target.linkExtensionNode = this; })
+  .attr("d", linkExtensionConstant);
 
-// var link = chart.append("g")
-//   .attr("class", "links")
-// .selectAll("path")
-// .data(root.links())
-// .enter().append("path")
-//   .each(function(d) { d.target.linkNode = this; })
-//   .attr("d", linkConstant)
-//   .attr("stroke", function(d) { return d.target.color; });
+var link = chart.append("g")
+  .attr("class", "links")
+.selectAll("path")
+.data(root.links())
+.enter().append("path")
+  .each(function(d) { d.target.linkNode = this; })
+  .attr("d", linkConstant)
+  .attr("stroke", function(d) { return d.target.color; });
 
-// chart.append("g")
-//   .attr("class", "labels")
-// .selectAll("text")
-// .data(root.leaves())
-// .enter().append("text")
-//   .attr("dy", ".31em")
-//   .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (innerRadius + 4) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-//   .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-//   .text(function(d) { return d.data.name.replace(/_/g, " "); })
-//   .on("mouseover", mouseovered(true))
-//   .on("mouseout", mouseovered(false));
+chart.append("g")
+  .attr("class", "labels")
+.selectAll("text")
+.data(root.leaves())
+.enter().append("text")
+  .attr("dy", ".31em")
+  .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (innerRadius + 4) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
+  .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+  .text(function(d) { return d.data.name.replace(/_/g, " ").substring(0, 7); })
+  .on("mouseover", mouseovered(true))
+  .on("mouseout", mouseovered(false));
 
-// function changed() {
-// clearTimeout(timeout);
-// var t = d3.transition().duration(750);
-// linkExtension.transition(t).attr("d", this.checked ? linkExtensionVariable : linkExtensionConstant);
-// link.transition(t).attr("d", this.checked ? linkVariable : linkConstant);
-// }
+function changed() {
+clearTimeout(timeout);
+var t = d3.transition().duration(750);
+linkExtension.transition(t).attr("d", this.checked ? linkExtensionVariable : linkExtensionConstant);
+link.transition(t).attr("d", this.checked ? linkVariable : linkConstant);
+}
 
-// function mouseovered(active) {
-// return function(d) {
-//     console.log(d.data.name);
-//     d3.select(this).classed("label--active", active);
-//     d3.select(d.linkExtensionNode).classed("link-extension--active", active).each(moveToFront);
-//     do d3.select(d.linkNode).classed("link--active", active).each(moveToFront); while (d = d.parent);
-// };
-// }
+function mouseovered(active) {
+return function(d) {
+    console.log(d.data.name);
+    d3.select(this).classed("label--active", active);
+    d3.select(d.linkExtensionNode).classed("link-extension--active", active).each(moveToFront);
+    do d3.select(d.linkNode).classed("link--active", active).each(moveToFront); while (d = d.parent);
+};
+}
 
-// function moveToFront() {
-// this.parentNode.appendChild(this);
-// }
-// });
+function moveToFront() {
+this.parentNode.appendChild(this);
+}
+});
 
-// // Compute the maximum cumulative length of any node in the tree.
-// function maxLength(d) {
-// return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
-// }
+// Compute the maximum cumulative length of any node in the tree.
+function maxLength(d) {
+return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
+}
 
-// // Set the radius of each node by recursively summing and scaling the distance from the root.
-// function setRadius(d, y0, k) {
-// d.radius = (y0 += d.data.length) * k;
-// if (d.children) d.children.forEach(function(d) { setRadius(d, y0, k); });
-// }
+// Set the radius of each node by recursively summing and scaling the distance from the root.
+function setRadius(d, y0, k) {
+d.radius = (y0 += d.data.length) * k;
+if (d.children) d.children.forEach(function(d) { setRadius(d, y0, k); });
+}
 
-// // Set the color of each node by recursively inheriting.
-// function setColor(d) {
-// var name = d.data.name;
-// d.color = color.domain().indexOf(name) >= 0 ? color(name) : d.parent ? d.parent.color : null;
-// if (d.children) d.children.forEach(setColor);
-// }
+// Set the color of each node by recursively inheriting.
+function setColor(d) {
+var name = d.data.name;
+d.color = color.domain().indexOf(name) >= 0 ? color(name) : d.parent ? d.parent.color : null;
+if (d.children) d.children.forEach(setColor);
+}
 
-// function linkVariable(d) {
-// return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
-// }
+function linkVariable(d) {
+return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
+}
 
-// function linkConstant(d) {
-// return linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
-// }
+function linkConstant(d) {
+return linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
+}
 
-// function linkExtensionVariable(d) {
-// return linkStep(d.target.x, d.target.radius, d.target.x, innerRadius);
-// }
+function linkExtensionVariable(d) {
+return linkStep(d.target.x, d.target.radius, d.target.x, innerRadius);
+}
 
-// function linkExtensionConstant(d) {
-// return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
-// }
+function linkExtensionConstant(d) {
+return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
+}
 
-// function elbow(d, i) {
-//     return "M" + d.source.y + "," + d.source.x
-//          + "H" + d.target.y + "V" + d.target.x
-//          + (d.target.children ? "" : "h" + 20);
-//   }
+function elbow(d, i) {
+    return "M" + d.source.y + "," + d.source.x
+         + "H" + d.target.y + "V" + d.target.x
+         + (d.target.children ? "" : "h" + 20);
+  }
 
-// // Like d3.svg.diagonal.radial, but with square corners.
-// function linkStep(startAngle, startRadius, endAngle, endRadius) {
-// var c0 = Math.cos(startAngle = (startAngle - 90) / 180 * Math.PI),
-//   s0 = Math.sin(startAngle),
-//   c1 = Math.cos(endAngle = (endAngle - 90) / 180 * Math.PI),
-//   s1 = Math.sin(endAngle);
-// return "M" + startRadius * c0 + "," + startRadius * s0
-//   + (endAngle === startAngle ? "" : "A" + startRadius + "," + startRadius + " 0 0 " + (endAngle > startAngle ? 1 : 0) + " " + startRadius * c1 + "," + startRadius * s1)
-//   + "L" + endRadius * c1 + "," + endRadius * s1;
-// }
+// Like d3.svg.diagonal.radial, but with square corners.
+function linkStep(startAngle, startRadius, endAngle, endRadius) {
+var c0 = Math.cos(startAngle = (startAngle - 90) / 180 * Math.PI),
+  s0 = Math.sin(startAngle),
+  c1 = Math.cos(endAngle = (endAngle - 90) / 180 * Math.PI),
+  s1 = Math.sin(endAngle);
+return "M" + startRadius * c0 + "," + startRadius * s0
+  + (endAngle === startAngle ? "" : "A" + startRadius + "," + startRadius + " 0 0 " + (endAngle > startAngle ? 1 : 0) + " " + startRadius * c1 + "," + startRadius * s1)
+  + "L" + endRadius * c1 + "," + endRadius * s1;
+}
