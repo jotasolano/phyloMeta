@@ -4,13 +4,18 @@
 
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin: 0;
+    /* margin: 0; */
   }
   
   #show-length {
     position: absolute;
     top: 10px;
     left: 10px;
+  }
+
+.msa-containter{
+    width: 900px;
+    height: 800px;
   }
   
   .links {

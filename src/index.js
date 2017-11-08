@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import Newick from 'newick';
 import dataLoader from './data';
 import './styles/index.css';
+const Fasta = require('biojs-io-fasta');
+
 
 // ------- DATA LOADER --------
 const data = dataLoader()
@@ -14,6 +16,25 @@ const data = dataLoader()
   });
 
 data();
+
+// ------- FASTA LOADER --------
+const rootDiv = document.getElementById("msa");
+
+let m = msa({
+  el: rootDiv,
+});
+
+
+Fasta.read("../data/MuV-MDPH.aligned.pruned.fasta", function (err, model) {
+  if (err) throw err;
+  console.log(model);
+  m.seqs.reset(model);
+  m.render();
+
+});
+
+console.log(m);
+
 
 var outerRadius = 800 / 2,
 innerRadius = outerRadius - 170;

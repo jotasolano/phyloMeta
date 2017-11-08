@@ -43,8 +43,10 @@
     "webpack-dev-server": "^2.5.0"
   },
   "dependencies": {
+    "biojs-io-fasta": "^0.1.17",
     "bootstrap": "^3.3.7",
     "d3": "^4.11.0",
+    "msa": "^1.0.3",
     "newick": "^1.4.0",
     "phylocanvas": "^2.8.1"
   }
