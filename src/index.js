@@ -2,6 +2,7 @@
 import * as d3 from 'd3';
 import Newick from 'newick';
 import dataLoader from './data';
+import ParseNewick from './ParseNewick';
 import './styles/index.css';
 const Fasta = require('biojs-io-fasta');
 
@@ -27,13 +28,14 @@ let m = msa({
 
 Fasta.read("../data/MuV-MDPH.aligned.pruned.fasta", function (err, model) {
   if (err) throw err;
+  // console.log(model[0].seq[0]);
   console.log(model);
   m.seqs.reset(model);
   m.render();
 
 });
 
-console.log(m);
+// console.log(m);
 
 
 var outerRadius = 800 / 2,
@@ -79,7 +81,7 @@ var chart = svg.append("g")
 d3.text("../data/mumps.nwk", function(error, life) {
 if (error) throw error;
 
-var root = d3.hierarchy(parseNewick(life), function(d) { return d.branchset; })
+var root = d3.hierarchy(ParseNewick(life), function(d) { return d.branchset; })
   .sum(function(d) { return d.branchset ? 0 : 1; })
   .sort(function(a, b) { return (a.value - b.value) || d3.ascending(a.data.length, b.data.length); });
 
@@ -140,6 +142,16 @@ function moveToFront() {
 this.parentNode.appendChild(this);
 }
 });
+
+function sumByCount(d) {
+  return d.children ? 0 : 1;
+}
+
+function sumBySize(d) {
+  return d.size;
+}
+
+
 
 // Compute the maximum cumulative length of any node in the tree.
 function maxLength(d) {

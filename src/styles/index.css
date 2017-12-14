@@ -7,6 +7,11 @@ body {
     /* margin: 0; */
   }
   
+svg {
+  font: 10px sans-serif;
+}
+
+
   #show-length {
     position: absolute;
     top: 10px;
@@ -15,7 +20,7 @@ body {
 
 .msa-containter{
     width: 900px;
-    height: 800px;
+    /* height: 800px; */
   }
   
   .links {
